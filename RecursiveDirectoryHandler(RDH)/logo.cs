@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace RecursiveDirectoryHandler_RDH_
 {
-    public partial class Form1 : Form
+    public partial class logo : Form
     {
-        public Form1()
+        public logo()
         {
             InitializeComponent();
             //progressBar1.Maximum = 10;
@@ -37,7 +37,7 @@ namespace RecursiveDirectoryHandler_RDH_
                 //progressBar1.Value = progressBar1.Minimum;
                 timer1.Stop();
                 Hide();
-                (new Form2()).ShowDialog();   
+                (new frmMain()).ShowDialog();   
                 Dispose();
                 
             }
