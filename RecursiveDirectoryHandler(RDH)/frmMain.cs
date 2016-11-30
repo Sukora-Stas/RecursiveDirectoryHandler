@@ -10,16 +10,16 @@ using System.Diagnostics;
 
 namespace RecursiveDirectoryHandler_RDH_
 {
-    public partial class frmMain : Form
+    public partial class FrmMain : Form
     {
         [DllImport("kernel32.dll")]
         private static extern int GetPrivateProfileSection(string lpAppName, byte[] lpszReturnBuffer, int nSize, string lpFileName);
-        String dir = "";
-        String pathIn = "";
-        String pathOut = "";
-        String pathLog = "";
-        DateTime dtLog;
-        public frmMain()
+        String _dir = "";
+        String _pathIn = "";
+        String _pathOut = "";
+        String _pathLog = "";
+        DateTime _dtLog;
+        public FrmMain()
         {
             InitializeComponent();
         }
@@ -29,34 +29,34 @@ namespace RecursiveDirectoryHandler_RDH_
             listBoxMain.Items.Clear();
             if (!File.Exists("Ionic.Zip.dll"))
             {
-                MessageBox.Show("Библиотека Ionic.Zip.dll не найдена, дальнейшая работа невозможна", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Библиотека Ionic.Zip.dll не найдена, дальнейшая работа невозможна", @"Внимание", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Application.ExitThread();
             }
-            if (!loadIni(Environment.CurrentDirectory + @"\tools.ini"))
+            if (!LoadIni(Environment.CurrentDirectory + @"\tools.ini"))
             {
-                MessageBox.Show("Отсуствует файл настроек - tools.ini", "Ошибка!",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show(@"Отсуствует файл настроек - tools.ini", @"Ошибка!",MessageBoxButtons.OK,MessageBoxIcon.Error);
                 butstart.Enabled = false;
             }
-            pathIn = getPath(pathIn);
-            pathOut = getPath(pathOut);
-            pathLog = getPath(pathLog);            
-            if (dir == "")
+            _pathIn = getPath(_pathIn);
+            _pathOut = getPath(_pathOut);
+            _pathLog = getPath(_pathLog);            
+            if (_dir == "")
             {
-                MessageBox.Show("Директория для поиска не определена", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Директория для поиска не определена", @"Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 butstart.Enabled = false;
                 txtDir.Enabled = true;
                 btnDir.Visible = true;
             }
-            if (!Directory.Exists(pathIn))
+            if (!Directory.Exists(_pathIn))
             {
-                MessageBox.Show("Отсуствует IN директория", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Отсуствует IN директория", @"Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 butstart.Enabled = false;
                 txtIn.Enabled = true;
                 btnIn.Visible = true;
             }
-            if (!Directory.Exists(pathOut))
+            if (!Directory.Exists(_pathOut))
             {
-                MessageBox.Show("Отсуствует OUT директория", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Отсуствует OUT директория", @"Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 butstart.Enabled = false;
                 txtOut.Enabled = true;
                 btnOut.Visible = true;
@@ -70,13 +70,13 @@ namespace RecursiveDirectoryHandler_RDH_
         }
         private String getName(String str)
         {
-            return str.Substring(0, str.IndexOf("=")).Trim();
+            return str.Substring(0, str.IndexOf("=", StringComparison.Ordinal)).Trim();
         }
         private String getValue(String str)
         {
-            return str.Substring(str.IndexOf("=") + 1).Trim();
+            return str.Substring(str.IndexOf("=", StringComparison.Ordinal) + 1).Trim();
         }
-        private Boolean loadIni(String fileIni)
+        private Boolean LoadIni(String fileIni)
         {
             if (!File.Exists(fileIni))
                 return false;
@@ -86,25 +86,25 @@ namespace RecursiveDirectoryHandler_RDH_
             foreach (String entry in tmp)
                 if (getValue(entry) != "")
                 {
-                    if (getName(entry).ToLower() == "dir".ToLower() && dir == "")
+                    if (getName(entry).ToLower() == "dir".ToLower() && _dir == "")
                     {
-                        dir = getValue(entry).ToUpper();
-                        txtDir.Text = dir;
+                        _dir = getValue(entry).ToUpper();
+                        txtDir.Text = _dir;
                     }
-                    if (getName(entry).ToLower() == "pathIn".ToLower() && pathIn == "")
+                    if (getName(entry).ToLower() == "pathIn".ToLower() && _pathIn == "")
                     {
-                        pathIn = getValue(entry);
-                        txtIn.Text = pathIn;
+                        _pathIn = getValue(entry);
+                        txtIn.Text = _pathIn;
                     }
-                    if (getName(entry).ToLower() == "pathOut".ToLower() && pathOut == "")
+                    if (getName(entry).ToLower() == "pathOut".ToLower() && _pathOut == "")
                     {
-                        pathOut = getValue(entry);
-                        txtOut.Text = pathOut;
+                        _pathOut = getValue(entry);
+                        txtOut.Text = _pathOut;
                     }
-                    if (getName(entry).ToLower() == "pathLog".ToLower() && pathLog == "")
+                    if (getName(entry).ToLower() == "pathLog".ToLower() && _pathLog == "")
                     {
-                        pathLog = getValue(entry);
-                        txtLog.Text = pathLog;
+                        _pathLog = getValue(entry);
+                        txtLog.Text = _pathLog;
                     }
                 }
             return true;
@@ -118,7 +118,7 @@ namespace RecursiveDirectoryHandler_RDH_
             n = 0;
             m = 0;
             butstart.Enabled = false;
-            butstart.Text = "Обработка...";
+            butstart.Text = @"Обработка...";
             this.Cursor = Cursors.WaitCursor;
             txtDir.Enabled = false;
             txtIn.Enabled = false;
@@ -130,7 +130,7 @@ namespace RecursiveDirectoryHandler_RDH_
             btnOut.Visible = false;
             listBoxMain.Items.Clear();
             listBoxDir.Items.Clear();
-            dtLog = DateTime.Now;
+            _dtLog = DateTime.Now;
             DateTime localDate = DateTime.Now;
             int now = localDate.Year;
             int last = localDate.Year - 1;
@@ -139,27 +139,27 @@ namespace RecursiveDirectoryHandler_RDH_
             DateTime dtb, dte;
             ZipFile zf;
             String archive;
-            caption(pathIn);
+            Caption(_pathIn);
             listBoxMain.Items.Add("Start... ");
             listBoxMain.Items.Add("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             listBoxMain.SelectedIndex = listBoxMain.Items.Count - 1;
             listBoxMain.Refresh(); 
-            listBoxMain.Items.Add("Стартовая директория: " + pathIn);
+            listBoxMain.Items.Add("Стартовая директория: " + _pathIn);
             listBoxMain.Items.Add("-------------------------------------------------------------------");
             listBoxMain.SelectedIndex = listBoxMain.Items.Count - 1;
             listBoxMain.Refresh();   
             try
             {
-                foreach (string pathDir in Directory.GetDirectories(pathIn))
+                foreach (string pathDir in Directory.GetDirectories(_pathIn))
                 {                    
                     DateTime dt = Directory.GetCreationTime(pathDir);
-                    archive = dt.ToString("yyyy") + pathDir.Substring(pathIn.Length);
+                    archive = dt.ToString("yyyy") + pathDir.Substring(_pathIn.Length);
                     Boolean flag = DateTime.TryParseExact(archive, "yyyyddMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtPath);
                     if (flag)
                     {
                         listBoxMain.Items.Add("<---- Директория для поиска: " + pathDir + " ---->");
                         // удаляем
-                        pathDelete(pathDir);
+                        PathDelete(pathDir);
                         if (dt.Year == now)
                         {
                             
@@ -173,7 +173,7 @@ namespace RecursiveDirectoryHandler_RDH_
                             zf.AlternateEncoding = Encoding.GetEncoding("cp866");
 
                             zf.AddDirectory(pathDir);//Добавляем папку
-                            zf.Save(pathOut + @"\" + archive + ".zip"); //Сохраняем архив
+                            zf.Save(_pathOut + @"\" + archive + ".zip"); //Сохраняем архив
                             /////////////////////////
                             dte = DateTime.Now;
                             listBoxMain.Items.Add("<==========================================================================>");
@@ -184,7 +184,7 @@ namespace RecursiveDirectoryHandler_RDH_
                             m++;
                             listBoxMain.SelectedIndex = listBoxMain.Items.Count - 1;
                             listBoxMain.Refresh();
-                            toolStripStatusLabel1.Text = "Создано архивов: " + m;
+                            toolStripStatusLabel1.Text = @"Создано архивов: " + m;
                             toolStripStatusLabel1.Visible = true;
                             // delete
                             Directory.Delete(pathDir, true);
@@ -212,7 +212,7 @@ namespace RecursiveDirectoryHandler_RDH_
                     else
                         listBoxMain.Items.Add("Директория исключена из просмотра: " + pathDir);
                     listBoxMain.Items.Add("<==========================================================================>");
-                    caption(pathDir);
+                    Caption(pathDir);
                     listBoxMain.SelectedIndex = listBoxMain.Items.Count - 1;
                     listBoxMain.Refresh();   
                 }
@@ -221,44 +221,44 @@ namespace RecursiveDirectoryHandler_RDH_
             {
                 MessageBox.Show(ex.Message);
             }
-            this.Cursor = Cursors.Default;
-            butstart.Text = "Запуск";
+            Cursor = Cursors.Default;
+            butstart.Text = @"Запуск";
             butstart.Enabled = true;
             listBoxMain.Items.Add("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             listBoxMain.Items.Add("=Finish!=");
-            MessageBox.Show("Готово!", "Работа завершена!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(@"Готово!", @"Работа завершена!", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-        void caption(String pathDir)
+        void Caption(String pathDir)
         {
             i++;            
-            caption2(pathDir);
+            Caption2(pathDir);
         }
-        void caption2(String pathDir)
+        void Caption2(String pathDir)
         {   
-            toolStripStatusObr.Text = "Папок найдено: " + n;
-            toolStripStatusFind.Text = "Папок обработанно: " + i;
+            toolStripStatusObr.Text = @"Папок найдено: " + n;
+            toolStripStatusFind.Text = @"Папок обработанно: " + i;
             statusStrip1.Refresh();
         }
-        void pathDelete(String pathDir)
+        void PathDelete(String pathDir)
         {            
             foreach (string pathNew in Directory.GetDirectories(pathDir))
             {
-                caption(pathNew);
+                Caption(pathNew);
                 listBoxDir.Items.Add(pathNew);
                 listBoxDir.SelectedIndex = listBoxDir.Items.Count - 1;
                 listBoxDir.Refresh();
-                if (pathNew.Substring(pathDir.Length + 1).ToUpper() == dir)                
+                if (pathNew.Substring(pathDir.Length + 1).ToUpper() == _dir)                
                 {
                     try
                     {
                         // delete
                         DateTime dt = Directory.GetCreationTime(pathNew);
-                        string archive_name = new DirectoryInfo(pathNew).Name;
-                        if (dt.Year == dtLog.Year)
+                        string archiveName = new DirectoryInfo(pathNew).Name;
+                        if (dt.Year == _dtLog.Year)
                         {
                             listBoxMain.SelectedIndex = listBoxMain.Items.Count - 1;
                             listBoxMain.Refresh();
-                            listBoxMain.Items.Add("Директория " + archive_name + " текущего года не подлежит удалению");
+                            listBoxMain.Items.Add("Директория " + archiveName + " текущего года не подлежит удалению");
                             n++;
                         }
                         else
@@ -270,7 +270,7 @@ namespace RecursiveDirectoryHandler_RDH_
                             listBoxMain.Items.Add("Удалена директория: " + pathNew);
                             //listBoxMain.Items.Add("___________________________________________________");
                             n++;
-                            caption2(pathNew);
+                            Caption2(pathNew);
                         }
                     }
                     catch (Exception ex)
@@ -285,18 +285,18 @@ namespace RecursiveDirectoryHandler_RDH_
                     }
                 }
                 else
-                    pathDelete(pathNew);
+                    PathDelete(pathNew);
             }
         }
-        private void writeFile(ListBox list, Boolean flag)
+        private void WriteFile(ListBox list, Boolean flag)
         {
             if (list.Items.Count <= 0)
                 return;
-            String file = pathLog + getPathLog(flag);
+            String file = _pathLog + GetPathLog(flag);
             try
             {
-                using (System.IO.StreamWriter fileStream =
-                new System.IO.StreamWriter(file, true, Encoding.GetEncoding("cp866")))
+                using (var fileStream =
+                new StreamWriter(file, true, Encoding.GetEncoding("cp866")))
                 {
                     fileStream.WriteLine(list.Items[list.Items.Count - 1]);
                 }
@@ -307,20 +307,20 @@ namespace RecursiveDirectoryHandler_RDH_
             }
             if (!File.Exists(file))
             {
-                MessageBox.Show("Файл логов не создан","Ошибка!",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                MessageBox.Show(@"Файл логов не создан",@"Ошибка!",MessageBoxButtons.OK,MessageBoxIcon.Error);
             }   
         }
-        private String getPathLog(Boolean flag)
+        private String GetPathLog(Boolean flag)
         {
-            return dtLog.ToString("yyyy_MM_dd_HH_mm_ss_") + (flag ? "main" : "path") + ".log";
+            return _dtLog.ToString("yyyy_MM_dd_HH_mm_ss_") + (flag ? "main" : "path") + ".log";
         }
         private void listBoxMain_SelectedIndexChanged(object sender, EventArgs e)
         {
-            writeFile(sender as ListBox, true);
+            WriteFile(sender as ListBox, true);
         }
         private void listBoxDir_SelectedIndexChanged(object sender, EventArgs e)
         {
-            writeFile(sender as ListBox, false);
+            WriteFile(sender as ListBox, false);
         }
         private void txtLog_TextChanged(object sender, EventArgs e)
         {
@@ -336,9 +336,9 @@ namespace RecursiveDirectoryHandler_RDH_
         }
         private void dsjlToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!loadIni(Environment.CurrentDirectory + @"\tools.ini"))
+            if (!LoadIni(Environment.CurrentDirectory + @"\tools.ini"))
             {
-                MessageBox.Show("Отсуствует файл настроек - tools.ini", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(@"Отсуствует файл настроек - tools.ini", @"Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 butstart.Enabled = false;
             }
             txtDir.Enabled = true;
@@ -380,8 +380,8 @@ namespace RecursiveDirectoryHandler_RDH_
             n = 0;
             m = 0;
             butstart.Enabled = false;
-            butstart.Text = "Обработка...";
-            this.Cursor = Cursors.WaitCursor;
+            butstart.Text = @"Обработка...";
+            Cursor = Cursors.WaitCursor;
             txtDir.Enabled = false;
             txtIn.Enabled = false;
             txtLog.Enabled = false;
@@ -392,7 +392,7 @@ namespace RecursiveDirectoryHandler_RDH_
             btnOut.Visible = false;
             listBoxMain.Items.Clear();
             listBoxDir.Items.Clear();
-            dtLog = DateTime.Now;
+            _dtLog = DateTime.Now;
             DateTime localDate = DateTime.Now;
             int now = localDate.Year;
             int last = localDate.Year - 1;
@@ -401,27 +401,27 @@ namespace RecursiveDirectoryHandler_RDH_
             DateTime dtb, dte;
             ZipFile zf;
             String archive;
-            caption(pathIn);
+            Caption(_pathIn);
             listBoxMain.Items.Add("Start... ");
             listBoxMain.Items.Add("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             listBoxMain.SelectedIndex = listBoxMain.Items.Count - 1;
             listBoxMain.Refresh(); 
-            listBoxMain.Items.Add("Стартовая директория: " + pathIn);
+            listBoxMain.Items.Add("Стартовая директория: " + _pathIn);
             listBoxMain.Items.Add("-------------------------------------------------------------------");
             listBoxMain.SelectedIndex = listBoxMain.Items.Count - 1;
             listBoxMain.Refresh();   
             try
             {
-                foreach (string pathDir in Directory.GetDirectories(pathIn))
+                foreach (string pathDir in Directory.GetDirectories(_pathIn))
                 {                    
                     DateTime dt = Directory.GetCreationTime(pathDir);
-                    archive = dt.ToString("yyyy") + pathDir.Substring(pathIn.Length);
+                    archive = dt.ToString("yyyy") + pathDir.Substring(_pathIn.Length);
                     Boolean flag = DateTime.TryParseExact(archive, "yyyyddMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out dtPath);
                     if (flag)
                     {
                         listBoxMain.Items.Add("<---- Директория для поиска: " + pathDir + " ---->");
                         // удаляем
-                        pathDelete(pathDir);
+                        PathDelete(pathDir);
                         if (dt.Year == now)
                         {
                         }
@@ -433,7 +433,7 @@ namespace RecursiveDirectoryHandler_RDH_
                             zf = new ZipFile();
                             zf.AlternateEncoding = Encoding.GetEncoding(1251);
                             zf.AddDirectory(pathDir);//Добавляем папку
-                            zf.Save(pathOut + @"\" + archive + ".zip"); //Сохраняем архив
+                            zf.Save(_pathOut + @"\" + archive + ".zip"); //Сохраняем архив
                             /////////////////////////
                             dte = DateTime.Now;
                             listBoxMain.Items.Add("<==========================================================================>");
@@ -444,7 +444,7 @@ namespace RecursiveDirectoryHandler_RDH_
                             m++;
                             listBoxMain.SelectedIndex = listBoxMain.Items.Count - 1;
                             listBoxMain.Refresh();
-                            toolStripStatusLabel1.Text = "Создано архивов: " + m;
+                            toolStripStatusLabel1.Text = @"Создано архивов: " + m;
                             toolStripStatusLabel1.Visible = true;
                             // delete
                             Directory.Delete(pathDir, true);
@@ -472,7 +472,7 @@ namespace RecursiveDirectoryHandler_RDH_
                     else
                         listBoxMain.Items.Add("Директория исключена из просмотра: " + pathDir);
                     listBoxMain.Items.Add("<==========================================================================>");
-                    caption(pathDir);
+                    Caption(pathDir);
                     listBoxMain.SelectedIndex = listBoxMain.Items.Count - 1;
                     listBoxMain.Refresh();   
                 }
@@ -481,12 +481,12 @@ namespace RecursiveDirectoryHandler_RDH_
             {
                 MessageBox.Show(ex.Message);
             }
-            this.Cursor = Cursors.Default;
-            butstart.Text = "Запуск";
+            Cursor = Cursors.Default;
+            butstart.Text = @"Запуск";
             butstart.Enabled = true;
             listBoxMain.Items.Add("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             listBoxMain.Items.Add("=Finish!=");
-            MessageBox.Show("Готово!", "Работа завершена!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(@"Готово!", @"Работа завершена!", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         private void оПрограммеToolStripMenuItem_Click(object sender, EventArgs e)
         {

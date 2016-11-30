@@ -21,7 +21,7 @@ namespace RecursiveDirectoryHandler_RDH_
             {
                 timer1.Stop();
                 Hide();
-                (new frmMain()).ShowDialog();   
+                (new FrmMain()).ShowDialog();   
                 Dispose();
             }
         }

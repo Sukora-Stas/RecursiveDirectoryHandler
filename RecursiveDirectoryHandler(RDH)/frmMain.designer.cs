@@ -1,6 +1,6 @@
 ﻿namespace RecursiveDirectoryHandler_RDH_
 {
-    partial class frmMain
+    partial class FrmMain
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.listBoxDir = new System.Windows.Forms.ListBox();
             this.timerStart = new System.Windows.Forms.Timer(this.components);
             this.listBoxMain = new System.Windows.Forms.ListBox();
@@ -364,7 +364,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "frmMain";
+            this.Name = "FrmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Обработчик директорий";
             this.Load += new System.EventHandler(this.Form2_Load);
